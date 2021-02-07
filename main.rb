@@ -26,31 +26,104 @@ class BookInfo
     end
 end
 
+# BookInfoManagerクラスを定義
+class BookInfoManager
+    def initialize
+        @book_infos = {}
+    end
+
+    #データをセットアップする
+    def setUp
+        # 複数冊のデータをセットアップする
+        @book_infos["Urashima2020"] = BookInfo.new(
+            "亀を引き寄せる法則",
+            "浦島 太郎",
+            248,
+            Date.new(2020, 1, 25)     
+        )
+        @book_infos["Momo2020"] = BookInfo.new(
+            "僕が桃から生まれた理由",
+            "桃 太郎",
+            316,
+            Date.new(2020, 5, 5)     
+        )        
+    end
+
+    # 蔵書データを登録する
+    def addBookInfo
+        # 蔵書データ1件分のインスタンスを作成
+        book_info = BookInfo.new( "", "", 0, Date.new )
+
+        #蔵書データを入力
+        print "¥n"
+        print "キー: "
+        key = gets.chomp
+
+        print "書籍名: "
+        book_info.title = gets.chomp
+        print "著者名: "
+        book_info.author = gets.chomp
+        print "ページ数: "
+        book_info.page = gets.chomp.to_i
+        print "発刊年: "
+        year = gets.chomp.to_i
+        print "発刊月: "
+        month = gets.chomp.to_i
+        print "発刊日: "
+        day = gets.chomp.to_i
+        book_info.publish_date = Date.new( year, month, day )
+
+        # 入力した蔵書データをハッシュに登録する
+        @book_infos[key] = book_info
+    end
+
+    # 蔵書データの一覧を表示する
+    def listAllBookInfos
+        puts "¥n----------"
+        @book_infos.each { |key, info|
+            print info.toFormattedString
+            puts "¥n----------"
+        }
+    end
+
+    # 処理の選択と選択後の処理を繰り返す
+    def run
+        while true
+            # 機能選択画面を表示する
+            print "
+            1. 蔵書データの登録
+            2. 蔵書データの表示
+            9. 終了
+            番号を選んでください（1, 2, 9）:
+            "
+            # 入力待ち
+            num = gets.chomp
+            case 
+            when '1' == num
+                # 蔵書データの登録
+                addBookInfo
+            when '2' == num
+                # 蔵書データの表示
+                listAllBookInfos
+            when '9' == num
+                # アプリケーションの終了
+                break;
+            else
+                # 処理選択待ち画面に戻る
+            end
+        end
+    end
+
+end
+
 # 複数冊の蔵書データを登録する
 book_infos = Hash.new
-book_infos["Urashima2020"] = BookInfo.new(
-    "亀を引き寄せる法則",
-    "浦島 太郎",
-    248,
-    Date.new(2020, 1, 25)     
-)
-book_infos["Momo2020"] = BookInfo.new(
-    "僕が桃から生まれた理由",
-    "桃 太郎",
-    316,
-    Date.new(2020, 5, 5)     
-)
 
-# 登録したデータを文字列表現で1冊ずつ出力する
-# valueがクラスのインスタンスになっていることに注意
-book_infos.each { |key, value|
-    puts "#{key}: #{value.to_s}"
-}
+# アプリケーションのインスタンスを作る
+book_info_manager = BookInfoManager.new
 
-# 変数book_infoで参照できようにする
-# インスタンスをいったん保持してからアクセスすると楽
-book_info = book_infos[ "Urashima2020" ]
-puts book_info.title
-puts book_info.author
-puts book_info.page
-puts book_info.publish_date
+# BookInfoManagerの蔵書データをセットアップする
+book_info_manager.setUp
+
+# BookInfoManagerの処理の選択と選択後の処理を繰り返す
+book_info_manager.run
