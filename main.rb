@@ -13,6 +13,11 @@ class BookInfo
         @publish_date = publish_date
     end
 
+    # 蔵書データをCSV形式へ変換
+    def to_csv( key )
+        "#{key},#{@title}, #{@author}, #{@page}, #{@publish_date}¥n"
+    end
+
     # 蔵書データのインスタンス文字列を返す
     def to_s
         "#{@title}, #{@author}, #{@page}, #{@publish_date}"
@@ -28,25 +33,27 @@ end
 
 # BookInfoManagerクラスを定義
 class BookInfoManager
-    def initialize
+    def initialize( filename )
+        # CSVファイルを指定する
+        @csv_fname = filename
+
+        # 蔵書データのハッシュ
         @book_infos = {}
     end
 
     #データをセットアップする
     def setUp
-        # 複数冊のデータをセットアップする
-        @book_infos["Urashima2020"] = BookInfo.new(
-            "亀を引き寄せる法則",
-            "浦島 太郎",
-            248,
-            Date.new(2020, 1, 25)     
-        )
-        @book_infos["Momo2020"] = BookInfo.new(
-            "僕が桃から生まれた理由",
-            "桃 太郎",
-            316,
-            Date.new(2020, 5, 5)     
-        )        
+        # CSVファイルを読み込みモードでオープンする
+        open( @csv_fname, "r:UTF-8" ) { |file|
+            # ファイルの行を1行ずつ取り出して、lineに読み込む
+            file.each { |line|
+                # 改行とカンマ区切りで分割
+                key, title, author, page, pdate = line.chomp.split(',')
+                # ハッシュに登録
+                @book_infos[ key ] = 
+                    BookInfo.new(title, author, page.to_i, Date.strptime(pdate))
+            }
+        }
     end
 
     # 蔵書データを登録する
@@ -82,7 +89,18 @@ class BookInfoManager
         puts "¥n----------"
         @book_infos.each { |key, info|
             print info.toFormattedString
-            puts "¥n----------"
+        puts "¥n----------"
+        }
+    end
+
+    # 蔵書データを全件ファイルへ書き込んで保存する
+    def saveAllBookInfos
+        # CSVファイルを書き込みモードでオープンする
+        open( @csv_fname, "w:UTF-8" ) { |file|
+            @book_infos.each { |key, info|
+                file.print( info.to_csv( key ))
+            }
+            puts "¥nファイルへ保存しました"
         }
     end
 
@@ -93,8 +111,9 @@ class BookInfoManager
             print "
             1. 蔵書データの登録
             2. 蔵書データの表示
+            8. 蔵書データをファイルへ保存
             9. 終了
-            番号を選んでください（1, 2, 9）:
+            番号を選んでください（1, 2, 8, 9）:
             "
             # 入力待ち
             num = gets.chomp
@@ -105,6 +124,9 @@ class BookInfoManager
             when '2' == num
                 # 蔵書データの表示
                 listAllBookInfos
+            when '8' == num
+                # 蔵書データをファイルへ保存
+                saveAllBookInfos    
             when '9' == num
                 # アプリケーションの終了
                 break;
@@ -116,11 +138,8 @@ class BookInfoManager
 
 end
 
-# 複数冊の蔵書データを登録する
-book_infos = Hash.new
-
 # アプリケーションのインスタンスを作る
-book_info_manager = BookInfoManager.new
+book_info_manager = BookInfoManager.new("book_info.csv")
 
 # BookInfoManagerの蔵書データをセットアップする
 book_info_manager.setUp
