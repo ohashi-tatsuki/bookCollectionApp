@@ -24,8 +24,6 @@ class BookInfo
     end
 
     # 書式をつけて出力する操作を追加
-    # 項目の区切りを文字を引数に指定することができる
-    # 引数を省略した場合は改行を区切り文字にする
     def toFormattedString( sep = "¥n" )
         "書籍名: #{@title}#{sep}著者名: #{@author}#{sep}ページ数: #{@page}ページ#{sep}発刊日: #{@publish_date}#{sep}"
     end
